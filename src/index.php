@@ -17,7 +17,7 @@
 
     $host = 'db';
     $user = 'root';
-    $pass = 'password';
+    $pass = 'rootpassword';
     $dbname = 'MovieDB';
 
     $conn = new mysqli($host, $user, $pass, $dbname);
