@@ -13,27 +13,14 @@
 
 <?php 
 
-    echo '<p>Hello World</p>'; 
-
-    $host = 'db';
-    $user = 'root';
-    $pass = 'rootpassword';
-    $dbname = 'MovieDB';
-
-    $conn = new mysqli($host, $user, $pass, $dbname);
-
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    } else {
-        echo "Connected successfully<br><br>";
-    }
+    include_once 'db_connection_init.php';  
 
     $sql = 'SELECT * FROM Movie';
     $rows = mysqli_query($conn, $sql);
 
 ?>
 
-<div class = "col-md-4">
+<div class = "centre-col-md-4">
 
     <div class = "card mt-4">
 
@@ -53,7 +40,7 @@
                         {
                             ?>
                             <tr>
-                                <td><?= $row['title'] ?></td>
+                                <td><a href="/movie.php?id=<?= $row['movieId'] ?>"><?= $row['title'] ?></a></td>
                                 <td><?= $row['year'] ?></td>
                             </tr>
                             <?php
