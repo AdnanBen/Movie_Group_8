@@ -14,7 +14,7 @@
         $id = $_GET['id'];
 
         $sql = "SELECT * FROM Movie WHERE movieId = $id";
-        $rows = mysqli_query($conn, $sql);
+        $rows = mysqli_query($con, $sql);
 
         $rowarr = $rows->fetch_array();
 

@@ -5,6 +5,6 @@ $host = 'db';
     $pass = 'rootpassword';
     $dbname = 'MovieDB';
 
-    $conn = new mysqli($host, $user, $pass, $dbname);
+    $con = new mysqli($host, $user, $pass, $dbname);
 
 ?>

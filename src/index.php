@@ -21,7 +21,7 @@
     include_once 'db_connection_init.php';  
 
     $sql = 'SELECT * FROM Movie';
-    $rows = mysqli_query($conn, $sql);
+    $rows = mysqli_query($con, $sql);
 
 ?>
 
@@ -68,6 +68,20 @@
                 </div>
                 <div class = "card-body">
                     <h6>Test</h6>
+                    <hr>
+                    <?php
+                        $sql = 'SELECT * FROM Genre';
+                        $get_genre = mysqli_query($con, $sql);
+
+                        foreach($get_genre as $genreArray) {
+                            ?>
+                                <div>
+                                    <input type="checkbox" name="genres[]" value="<?= $genreArray['genreId'];?>">
+                                    <?= $genreArray['genre']; ?>
+                                </div>
+                            <?php
+                        }
+                    ?>
                 </div>
             </div>
         </div>
