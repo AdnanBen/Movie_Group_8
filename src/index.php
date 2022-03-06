@@ -34,6 +34,22 @@
         <div class = "col-md-8">
             <div class = "card mt-3">
                 <div class = "card-body">
+
+                <?php
+                    if (isset($_GET['genres']))
+
+                    {
+                        echo "IDs of selected genres: ";
+                        $selectedGenres = [];
+                        $selectedGenres = $_GET['genres'];
+                        foreach ($selectedGenres as $selectedGenre) {
+                            echo $selectedGenre . ',';
+                        }
+                    }
+
+                ?>
+
+
                     <table class = "table table-bordered">
                         <thead>
                             <tr>
@@ -68,7 +84,7 @@
                     </h5>
                 </div>
                 <div class = "card-body">
-                    <h6>Test</h6>
+                    <h6>Genres</h6>
                     <hr>
                     <?php
                         $sql = 'SELECT * FROM Genre';
