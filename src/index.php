@@ -60,10 +60,11 @@
         </div>
 
         <div class = "col-md-3">
+        <form action= "" method = "GET">
             <div class = "card shadow mt-3">
                 <div class = "card-header">
                     <h5>Filter
-                        <button type = "submit" class = "btn btn-primary btn-sm float-end">Apply</button>
+                        <button type = "apply" class = "btn btn-primary btn-sm float-end">Apply</button>
                     </h5>
                 </div>
                 <div class = "card-body">
@@ -74,9 +75,16 @@
                         $get_genre = mysqli_query($con, $sql);
 
                         foreach($get_genre as $genreArray) {
+                            $selectedGenres = [];
+                            if (isset($_GET['genres'])) {
+                                $selectedGenres = $_GET['genres'];
+                            }
+
                             ?>
                                 <div>
-                                    <input type="checkbox" name="genres[]" value="<?= $genreArray['genreId'];?>">
+                                    <input type="checkbox" name="genres[]" value="<?= $genreArray['genreId'];?>"
+                                    <?php if(in_array($genreArray['genreId'], $selectedGenres)) {echo "checked";} ?>
+                                    />
                                     <?= $genreArray['genre']; ?>
                                 </div>
                             <?php
@@ -84,8 +92,7 @@
                     ?>
                 </div>
             </div>
+            </form>
         </div>
-
-
     </div>
 </div>
