@@ -20,8 +20,8 @@
 
     include_once 'db_connection_init.php';  
 
-    $sql = 'SELECT * FROM Movie';
-    $rows = mysqli_query($con, $sql);
+    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR from Ratings join Movie on Ratings.movieId = Movie.movieId
+    GROUP BY Movie.title, Movie.year, Movie.movieId LIMIT 50';
 
 ?>
 
@@ -36,16 +36,29 @@
                 <div class = "card-body">
 
                 <?php
+                    $selectedGenres = [];
                     if (isset($_GET['genres']))
 
                     {
                         echo "IDs of selected genres: ";
                         $selectedGenres = [];
                         $selectedGenres = $_GET['genres'];
+                        $arrSize = count($selectedGenres);
+                        echo "size" . $arrSize;
+                        echo ": ";
                         foreach ($selectedGenres as $selectedGenre) {
                             echo $selectedGenre . ',';
                         }
+
+                        $sql = "SELECT Movie.movieId, Movie.title, Movie.year, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR from Ratings 
+                        join Movie on Ratings.movieId = Movie.movieId 
+                        join MovieGenreLink on MovieGenreLink.movieId = Movie.movieId 
+                        WHERE MovieGenreLink.genreId in (". implode(',', $selectedGenres) . ")
+                        GROUP BY Movie.title, Movie.movieId, Movie.year
+                        HAVING COUNT(DISTINCT MovieGenreLink.genreId) = " . $arrSize . " ORDER BY movieId LIMIT 50";
+
                     }
+
 
                 ?>
 
@@ -54,16 +67,19 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Rating</th>
                                 <th>Year</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
+                                $rows = mysqli_query($con, $sql);
                                 foreach($rows as $row) 
                                 {
                                     ?>
                                     <tr>
                                         <td><a href="/movie.php?id=<?= $row['movieId'] ?>"><?= $row['title'] ?></a></td>
+                                        <td><?= round($row['AR'], 2) ?></td>
                                         <td><?= $row['year'] ?></td>
                                     </tr>
                                     <?php
@@ -108,7 +124,10 @@
                     ?>
                 </div>
             </div>
-            </form>
+        </form>
         </div>
+
+        
     </div>
+    
 </div>

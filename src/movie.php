@@ -20,13 +20,15 @@
 
 
         echo 'Stats: <br><br>';
-        echo 'id: ' . $rowarr[0];
+        echo 'ID: ' . $rowarr[0];
         echo '<br>';
-        echo 'title: ' . $rowarr[1];
+        echo 'Title: ' . $rowarr[1];
         echo '<br>';
-        echo 'year: ' . $rowarr[2];
+        echo 'Year: ' . $rowarr[2];
 
         echo '<br><br>';
+
+        echo 'Rating: '
 
 
     ?>
