@@ -74,6 +74,24 @@
                         if ($selectedSort == "3") {
                             $sql = $sql . " ORDER BY `BR` DESC";
                         }
+                        if ($selectedSort == "4") {
+                            $sql = $sql . " ORDER BY `Movie`.`year` ASC";
+                        }
+                        if ($selectedSort == "5") {
+                            $sql = $sql . " ORDER BY `Movie`.`year` DESC";
+                        }
+                        if ($selectedSort == "6") {
+                            $sql = $sql . " ORDER BY `Movie`.`title` ASC";
+                        }
+                        if ($selectedSort == "7") {
+                            $sql = $sql . " ORDER BY `Movie`.`title` DESC";
+                        }
+                        if ($selectedSort == "8") {
+                            $sql = $sql . " ORDER BY `AR` ASC";
+                        }
+                        if ($selectedSort == "9") {
+                            $sql = $sql . " ORDER BY `AR` DESC";
+                        }
                     } else {
                         $sql = $sql . " ORDER BY movieId";
                     }
@@ -134,6 +152,12 @@
                         <option value = "1" <?php if (isset($selectedSort) and $selectedSort == "1") {echo '" selected = "selected"';}?>> Default </option>
                         <option value = "2"<?php if (isset($selectedSort) and $selectedSort == "2") {echo '" selected = "selected"';}?>> Popularity Ascending </option>
                         <option value = "3" <?php if (isset($selectedSort) and $selectedSort == "3") {echo '" selected = "selected"';}?>> Popularity Descending </option>
+                        <option value = "4" <?php if (isset($selectedSort) and $selectedSort == "4") {echo '" selected = "selected"';}?>> Release Year Ascending </option>
+                        <option value = "5" <?php if (isset($selectedSort) and $selectedSort == "5") {echo '" selected = "selected"';}?>> Release Year Descending </option>
+                        <option value = "6" <?php if (isset($selectedSort) and $selectedSort == "6") {echo '" selected = "selected"';}?>> Title A-Z </option>
+                        <option value = "7" <?php if (isset($selectedSort) and $selectedSort == "7") {echo '" selected = "selected"';}?>> Title Z-A </option>
+                        <option value = "8" <?php if (isset($selectedSort) and $selectedSort == "8") {echo '" selected = "selected"';}?>> Rating Ascending </option>
+                        <option value = "9" <?php if (isset($selectedSort) and $selectedSort == "9") {echo '" selected = "selected"';}?>> Rating Descending </option>
                     </select>
 
                 </div>
