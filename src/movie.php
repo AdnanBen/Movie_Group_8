@@ -13,7 +13,11 @@
 
         $id = $_GET['id'];
 
-        $sql = "SELECT * FROM Movie WHERE movieId = $id";
+        $sql = "SELECT Movie.movieId, Movie.title, Movie.year, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+        from Ratings 
+        join Movie on Ratings.movieId = Movie.movieId
+        WHERE Movie.movieId = " . $id ."
+        GROUP BY Movie.title, Movie.year, Movie.movieId;";
         $rows = mysqli_query($con, $sql);
 
         $rowarr = $rows->fetch_array();
@@ -28,7 +32,7 @@
 
         echo '<br><br>';
 
-        echo 'Rating: '
+        echo 'Rating: ' . $rowarr[3];
 
 
     ?>

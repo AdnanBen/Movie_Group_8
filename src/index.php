@@ -20,8 +20,10 @@
 
     include_once 'db_connection_init.php';  
 
-    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR from Ratings join Movie on Ratings.movieId = Movie.movieId
-    GROUP BY Movie.title, Movie.year, Movie.movieId LIMIT 50';
+    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+    from Ratings 
+    join Movie on Ratings.movieId = Movie.movieId
+    GROUP BY Movie.title, Movie.year, Movie.movieId';
 
 ?>
 
@@ -38,26 +40,45 @@
                 <?php
                     $selectedGenres = [];
                     if (isset($_GET['genres']))
-
                     {
-                        echo "IDs of selected genres: ";
                         $selectedGenres = [];
                         $selectedGenres = $_GET['genres'];
                         $arrSize = count($selectedGenres);
+                        /*
+                        echo "IDs of selected genres: ";
                         echo "size" . $arrSize;
                         echo ": ";
                         foreach ($selectedGenres as $selectedGenre) {
                             echo $selectedGenre . ',';
                         }
+                        */
 
                         $sql = "SELECT Movie.movieId, Movie.title, Movie.year, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR from Ratings 
                         join Movie on Ratings.movieId = Movie.movieId 
                         join MovieGenreLink on MovieGenreLink.movieId = Movie.movieId 
                         WHERE MovieGenreLink.genreId in (". implode(',', $selectedGenres) . ")
                         GROUP BY Movie.title, Movie.movieId, Movie.year
-                        HAVING COUNT(DISTINCT MovieGenreLink.genreId) = " . $arrSize . " ORDER BY movieId LIMIT 50";
-
+                        HAVING COUNT(DISTINCT MovieGenreLink.genreId) = " . $arrSize;
                     }
+
+                    $selectedSort; 
+                    if (isset($_GET['sortmode'])) 
+                    {
+                        $selectedSort = $_GET['sortmode'];
+                        if ($selectedSort == "1") {
+                            $sql = $sql . " ORDER BY movieId";
+                        }
+                        if ($selectedSort == "2") {
+                            $sql = $sql . " ORDER BY `BR` ASC";
+                        }
+                        if ($selectedSort == "3") {
+                            $sql = $sql . " ORDER BY `BR` DESC";
+                        }
+                    } else {
+                        $sql = $sql . " ORDER BY movieId";
+                    }
+
+                    $sql = $sql . " LIMIT 50";
 
 
                 ?>
@@ -98,6 +119,23 @@
                     <h5>Filter
                         <button type = "apply" class = "btn btn-primary btn-sm float-end">Apply</button>
                     </h5>
+                </div>
+                <div class = "card-body">
+                    <h6>Sort</h6>
+                    <hr>
+                    <?php
+                        $selectedSort; 
+                        if (isset($_GET['sortmode'])) {
+                            $selectedSort = $_GET['sortmode'];
+                        }
+
+                    ?> 
+                    <select name="sortmode" id="sort1">
+                        <option value = "1" <?php if (isset($selectedSort) and $selectedSort == "1") {echo '" selected = "selected"';}?>> Default </option>
+                        <option value = "2"<?php if (isset($selectedSort) and $selectedSort == "2") {echo '" selected = "selected"';}?>> Popularity Ascending </option>
+                        <option value = "3" <?php if (isset($selectedSort) and $selectedSort == "3") {echo '" selected = "selected"';}?>> Popularity Descending </option>
+                    </select>
+
                 </div>
                 <div class = "card-body">
                     <h6>Genres</h6>
