@@ -16,7 +16,7 @@
             integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
-    <title>Movies</title>
+    <title>Search results</title>
 
 </head>
 <body>
@@ -24,16 +24,21 @@
 </html>
 
 <?php
-
 include_once 'db_connection_init.php';
+
+$query = $_GET['search'];
+
+$query = htmlspecialchars($query);
+
+$query = mysqli_real_escape_string($con, $query);
 
 $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
     from Ratings 
     join Movie on Ratings.movieId = Movie.movieId
-    GROUP BY Movie.title, Movie.year, Movie.movieId';
-
+    WHERE Movie.title LIKE "%' . $query . '%"
+    GROUP BY Movie.title, Movie.year, Movie.movieId 
+    ';
 ?>
-
 
 <div class="container">
     <div class="row">
@@ -45,12 +50,12 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                 <nav class="navbar navbar-light bg-light justify-content-between" style="background-color: #e3f2fd;">
                     <a class="navbar-brand justify-content-center">UCL Movie Library</a>
                     <form class="form-inline justify-content-center mt-3" action="search.php" method="GET">
-                        <input class="form-control mr-1" type="search" name="search" placeholder="Search"
-                               aria-label="Search">
+                        <input class="form-control mr-1" value="<?= $query ?>" type="search" name="search"
+                               placeholder="Search" aria-label="Search">
                         <button class="btn btn-primary" type="submit">Search</button>
                     </form>
-                </nav>
 
+                </nav>
 
                 <?php
                 $selectedGenres = [];
