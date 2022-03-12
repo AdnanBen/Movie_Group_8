@@ -25,12 +25,14 @@
 
 <?php
 
-include_once 'db_connection_init.php';
+    include_once 'db_connection_init.php';
 
-$sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
-    from Ratings 
-    join Movie on Ratings.movieId = Movie.movieId
-    GROUP BY Movie.title, Movie.year, Movie.movieId';
+    $search_string = "";
+    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+                                    from Ratings 
+                                    join Movie on Ratings.movieId = Movie.movieId
+                                    WHERE Movie.title LIKE "%' . $search_string . '%"
+                                    GROUP BY Movie.title, Movie.year, Movie.movieId';
 
 ?>
 
@@ -42,17 +44,30 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
         <div class="col-md-8">
             <div class="card mt-3 card shadow mt-3">
 
+            <?php
+                if (isset($_GET['search'])) {
+
+                    $search_string = $_GET['search'];
+                    $search_string = htmlspecialchars($search_string);
+                    $search_string = mysqli_real_escape_string($con, $search_string);
+
+                    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+                                from Ratings 
+                                join Movie on Ratings.movieId = Movie.movieId
+                                WHERE Movie.title LIKE "%' . $search_string . '%"
+                                GROUP BY Movie.title, Movie.year, Movie.movieId';
+
+                }
+            ?>
+
                 <nav class="navbar navbar-light bg-light justify-content-between" style="background-color: #e3f2fd;">
                     <a class="navbar-brand justify-content-center">UCL Movie Library</a>
-                    <form class="form-inline justify-content-center mt-3" action="search.php" method="GET">
-                        <input class="form-control mr-1" type="search" name="search" placeholder="Search"
-                               aria-label="Search">
-                        <button class="btn btn-primary" type="submit">Search</button>
-                    </form>
                 </nav>
 
 
                 <?php
+
+
                 $selectedGenres = [];
                 if (isset($_GET['genres'])) {
                     $selectedGenres = [];
@@ -70,7 +85,7 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                     $sql = "SELECT Movie.movieId, Movie.title, Movie.year, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR from Ratings 
                         join Movie on Ratings.movieId = Movie.movieId 
                         join MovieGenreLink on MovieGenreLink.movieId = Movie.movieId 
-                        WHERE MovieGenreLink.genreId in (" . implode(',', $selectedGenres) . ")
+                        WHERE Movie.title LIKE '%" . $search_string . "%' AND MovieGenreLink.genreId in (" . implode(',', $selectedGenres) . ")
                         GROUP BY Movie.title, Movie.movieId, Movie.year
                         HAVING COUNT(DISTINCT MovieGenreLink.genreId) = " . $arrSize;
                 }
@@ -143,6 +158,10 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
             <form action="" method="GET">
                 <div class="card shadow mt-3">
                     <div class="card-body">
+                        <h5>Search</h5>
+                        <input class="form-control mr-1" value = "<?= $search_string ?>" type="search" name="search" placeholder="Search"
+                               aria-label="Search">
+                        <br>
                         <h5>Sort</h5>
                         <?php
                         $selectedSort;
@@ -189,7 +208,6 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                             } ?>> Rating Descending
                             </option>
                         </select>
-
                     </div>
                     <div class="card-body">
                         <h5>Genres</h5>
