@@ -50,6 +50,8 @@
                     $search_string = $_GET['search'];
                     $search_string = htmlspecialchars($search_string);
                     $search_string = mysqli_real_escape_string($con, $search_string);
+                    $search_string = str_replace("%", "\%", $search_string);
+                    $search_string = str_replace("_", "\_", $search_string);
 
                     $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
                                 from Ratings 
