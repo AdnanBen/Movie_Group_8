@@ -126,7 +126,6 @@
                     $sql = $sql . " ORDER BY movieId";
                 }
 
-                $sql = $sql . " LIMIT 50";
                 ?>
 
 
@@ -160,7 +159,7 @@
             <form action="" method="GET">
                 <div class="card shadow mt-3">
                     <div class="card-body">
-                        <h5>Search</h5>
+                        <h5>Keyword</h5>
                         <input class="form-control mr-1" value = "<?= $search_string ?>" type="search" name="search" placeholder="Search"
                                aria-label="Search">
                         <br>
