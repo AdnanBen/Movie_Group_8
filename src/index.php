@@ -126,6 +126,8 @@
                     $sql = $sql . " ORDER BY movieId";
                 }
 
+                $sql = $sql . " LIMIT 50";
+
                 ?>
 
 
