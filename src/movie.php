@@ -49,7 +49,7 @@
 
         echo "Number of ratings: " . $numOfReviews;
         echo '<br>';
-        echo "Number of ratings in subset: " . $subsetNumOfReviews;
+        echo "Number of ratings in 10% subset: " . $subsetNumOfReviews;
 
 
         // First average, 10% random sample
@@ -89,12 +89,75 @@
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
         
-        echo '<br><br>';
+        echo '<br>';
         $avg2 = $rowarr[0];
         echo "Average rating by first 10% of reviews by timestamp: " . $avg2;
+        echo '<br><br>';
+        echo '<br><br>';
 
 
         // Use case (5)
+
+        $sql = "SELECT COUNT(*) FROM `Personality` WHERE userid IN ( SELECT userid FROM `PersonalityRatings` WHERE PersonalityRatings.rating > 2.5 AND movieId = " . $movieId ." );";
+
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_array();
+
+        $persRatingsNum = $rowarr[0];
+        $subsetPersRevs = intdiv($persRatingsNum, 10);
+
+
+        echo "Number of ratings in personality data: " . $persRatingsNum;
+        echo '<br>';
+        echo "Number of ratings in personality data 10% subset: " . $subsetPersRevs;
+        echo '<br><br>';
+
+
+        $sql = "SELECT AVG(openness), AVG(agreeableness), AVG(emotional_stability), AVG(conscientiousness), AVG(extraversion)
+        FROM `Personality` 
+        WHERE userid IN
+        (
+        SELECT userid
+        FROM `PersonalityRatings`
+        WHERE PersonalityRatings.rating > 2.5 AND movieId = " . $movieId ."
+        );";
+
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_array();
+
+        echo "Average personality ratings";
+        echo '<br><br>';
+        echo "Openess: " . $rowarr[0];
+        echo '<br>';
+        echo "Agreeableness: " . $rowarr[1];
+        echo '<br>';
+        echo "Emotional Stability: " . $rowarr[2];
+        echo '<br>';
+        echo "Conscientiousness: " . $rowarr[3];
+        echo '<br>';
+        echo "Extraversion: " . $rowarr[4];
+
+        echo '<br><br>';
+
+        echo "Average personalities data based on random 10% subset";
+        echo '<br><br>';
+
+        $sql = "SELECT AVG(openness), AVG(agreeableness), AVG(emotional_stability), AVG(conscientiousness), AVG(extraversion) FROM `Personality` 
+        WHERE userid IN (SELECT * FROM ( SELECT userid FROM `PersonalityRatings` WHERE PersonalityRatings.rating > 2.5 AND movieId = " . $movieId ." LIMIT " . $subsetPersRevs .") as t1)";
+
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_array();
+
+        echo "Openess: " . $rowarr[0];
+        echo '<br>';
+        echo "Agreeableness: " . $rowarr[1];
+        echo '<br>';
+        echo "Emotional Stability: " . $rowarr[2];
+        echo '<br>';
+        echo "Conscientiousness: " . $rowarr[3];
+        echo '<br>';
+        echo "Extraversion: " . $rowarr[4];
+
 
 
     ?>
