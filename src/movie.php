@@ -90,9 +90,8 @@
         $rowarr = $rows->fetch_array();
         
         echo '<br><br>';
-        $numOfReviews = $rowarr[0];
-        echo "Average rating by first 10% of reviews by timestamp: " . $numOfReviews;
-        echo $subsetNumOfReviews;
+        $avg2 = $rowarr[0];
+        echo "Average rating by first 10% of reviews by timestamp: " . $avg2;
 
 
         // Use case (5)
