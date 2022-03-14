@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Movie Page</title>
 </head>
 <body>
     <?php
@@ -19,20 +19,12 @@
         WHERE Movie.movieId = " . $id ."
         GROUP BY Movie.title, Movie.year, Movie.movieId;";
         $rows = mysqli_query($con, $sql);
-
         $rowarr = $rows->fetch_array();
 
-
-        echo 'Stats: <br><br>';
         $movieId = $rowarr[0];
-        echo 'ID: ' . $rowarr[0];
-        echo '<br>';
-        echo 'Title: ' . $rowarr[1];
-        echo '<br>';
-        echo 'Year: ' . $rowarr[2];
-        echo '<br><br>';
-        echo 'Rating: ' . $rowarr[3];
-
+        $title = $rowarr[1];
+        $year = $rowarr[2];
+        $avgRating = $rowarr[3];
 
         // Use case (4)
 
@@ -43,13 +35,8 @@
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
 
-        echo '<br><br>';
-        $numOfReviews = $rowarr[0];
-        $subsetNumOfReviews = intdiv($numOfReviews, 10);
-
-        echo "Number of ratings: " . $numOfReviews;
-        echo '<br>';
-        echo "Number of ratings in 10% subset: " . $subsetNumOfReviews;
+        $numOfNormalReviews = $rowarr[0];
+        $subsetNumOfNormalReviews = intdiv($numOfNormalReviews, 10);
 
 
         // First average, 10% random sample
@@ -61,16 +48,14 @@
                 FROM `Ratings`
                 WHERE Ratings.movieId = " . $movieId . "
                 ORDER BY RAND()
-                LIMIT ". $subsetNumOfReviews . "
+                LIMIT ". $subsetNumOfNormalReviews . "
                 ) t1;";
 
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
         
 
-        echo '<br><br>';
-        $avg1 = $rowarr[0];
-        echo "Average rating by random sample at 10%: " . $avg1;
+        $predictedRatingRandomSample = $rowarr[0];
 
 
         // Second average, first 10% by timestamp
@@ -82,18 +67,14 @@
                 FROM `Ratings`
                 WHERE Ratings.movieId = " . $movieId . "
                 ORDER BY timestamp
-                LIMIT ". $subsetNumOfReviews . "
+                LIMIT ". $subsetNumOfNormalReviews . "
                 ) t1;";
 
         
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
-        
-        echo '<br>';
-        $avg2 = $rowarr[0];
-        echo "Average rating by first 10% of reviews by timestamp: " . $avg2;
-        echo '<br><br>';
-        echo '<br><br>';
+
+        $predictedRatingTimestampSample = $rowarr[0];
 
 
         // Use case (5)
@@ -103,15 +84,8 @@
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
 
-        $persRatingsNum = $rowarr[0];
-        $subsetPersRevs = intdiv($persRatingsNum, 10);
-
-
-        echo "Number of ratings in personality data: " . $persRatingsNum;
-        echo '<br>';
-        echo "Number of ratings in personality data 10% subset: " . $subsetPersRevs;
-        echo '<br><br>';
-
+        $numOfPersonalityRatings = $rowarr[0];
+        $subsetNumOfPersonalityRatings = intdiv($numOfPersonalityRatings, 10);
 
         $sql = "SELECT AVG(openness), AVG(agreeableness), AVG(emotional_stability), AVG(conscientiousness), AVG(extraversion)
         FROM `Personality` 
@@ -125,38 +99,115 @@
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
 
+        $personalityScores = [];
+
+        $personalityScores[0] = $rowarr[0]; // Openness
+        $personalityScores[1] = $rowarr[1]; // Agreeableness
+        $personalityScores[2] = $rowarr[2]; // Emotional Stability
+        $personalityScores[3] = $rowarr[3]; // Conscientiousness
+        $personalityScores[4] = $rowarr[4]; // Extraversion
+
+
+        $sql = "SELECT AVG(openness), AVG(agreeableness), AVG(emotional_stability), AVG(conscientiousness), AVG(extraversion) FROM `Personality` 
+        WHERE userid IN (SELECT * FROM ( SELECT userid FROM `PersonalityRatings` WHERE PersonalityRatings.rating > 2.5
+        AND movieId = " . $movieId ." ORDER BY RAND() LIMIT " . $subsetNumOfPersonalityRatings .") as t1)";
+
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_array();
+
+        $predictedPersonalityScores = [];
+
+        $predictedPersonalityScores[0] = $rowarr[0]; // Openness
+        $predictedPersonalityScores[1] = $rowarr[1]; // Agreeableness
+        $predictedPersonalityScores[2] = $rowarr[2]; // Emotional Stability
+        $predictedPersonalityScores[3] = $rowarr[3]; // Conscientiousness
+        $predictedPersonalityScores[4] = $rowarr[4]; // Extraversion
+
+
+
+        /////////// UI 
+
+
+        // $movieId
+        // $title
+        // $year
+        // %avgRating
+        
+        // $sumOfNormalReviews
+        // $subsetNumOfNormalReviews
+
+        // $predictedRatingRandomSample
+        // $predictedRatingTimestampSample
+
+        // $numOfPersonalityRatings
+        // $subsetNumOfPersonalityRatings
+
+        // $personalityScores[]
+        // $predictedPersonalityScores[]
+
+
+
+        echo 'Stats: <br><br>';
+        echo 'ID: ' . $movieId;
+        echo '<br>';
+        echo 'Title: ' . $title;
+        echo '<br>';
+        echo 'Year: ' . $year;
+        echo '<br><br>';
+        echo 'Rating: ' . $avgRating;
+
+        echo '<br><br>';
+
+        echo "Number of ratings: " . $numOfNormalReviews;
+        echo '<br>';
+        echo "Number of ratings in 10% subset: " . $subsetNumOfNormalReviews;
+
+        echo '<br><br>';
+
+        echo "Average rating by random sample at 10%: " . $predictedRatingRandomSample;
+
+        echo '<br>';
+
+        echo "Average rating by first 10% of reviews by timestamp: " . $predictedRatingTimestampSample;
+
+
+        echo '<br><br>';
+
+        echo "Number of ratings in personality data: " . $numOfPersonalityRatings;
+        echo '<br>';
+        echo "Number of ratings in personality data 10% subset: " . $subsetNumOfPersonalityRatings;
+        echo '<br><br>';
+
         echo "Average personality ratings";
         echo '<br><br>';
-        echo "Openess: " . $rowarr[0];
+        echo "Openess: " . $personalityScores[0];
         echo '<br>';
-        echo "Agreeableness: " . $rowarr[1];
+        echo "Agreeableness: " . $personalityScores[1];
         echo '<br>';
-        echo "Emotional Stability: " . $rowarr[2];
+        echo "Emotional Stability: " . $personalityScores[2];
         echo '<br>';
-        echo "Conscientiousness: " . $rowarr[3];
+        echo "Conscientiousness: " . $personalityScores[3];
         echo '<br>';
-        echo "Extraversion: " . $rowarr[4];
+        echo "Extraversion: " . $personalityScores[4];
 
         echo '<br><br>';
 
         echo "Average personalities data based on random 10% subset";
         echo '<br><br>';
 
-        $sql = "SELECT AVG(openness), AVG(agreeableness), AVG(emotional_stability), AVG(conscientiousness), AVG(extraversion) FROM `Personality` 
-        WHERE userid IN (SELECT * FROM ( SELECT userid FROM `PersonalityRatings` WHERE PersonalityRatings.rating > 2.5 AND movieId = " . $movieId ." LIMIT " . $subsetPersRevs .") as t1)";
+        echo "Openess: " . $predictedPersonalityScores[0];
+        echo '<br>';
+        echo "Agreeableness: " . $predictedPersonalityScores[1];
+        echo '<br>';
+        echo "Emotional Stability: " . $predictedPersonalityScores[2];
+        echo '<br>';
+        echo "Conscientiousness: " . $predictedPersonalityScores[3];
+        echo '<br>';
+        echo "Extraversion: " . $predictedPersonalityScores[4];
 
-        $rows = mysqli_query($con, $sql);
-        $rowarr = $rows->fetch_array();
 
-        echo "Openess: " . $rowarr[0];
-        echo '<br>';
-        echo "Agreeableness: " . $rowarr[1];
-        echo '<br>';
-        echo "Emotional Stability: " . $rowarr[2];
-        echo '<br>';
-        echo "Conscientiousness: " . $rowarr[3];
-        echo '<br>';
-        echo "Extraversion: " . $rowarr[4];
+
+
 
 
 
