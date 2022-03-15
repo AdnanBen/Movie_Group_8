@@ -18,6 +18,7 @@
         join Movie on Ratings.movieId = Movie.movieId
         WHERE Movie.movieId = " . $id ."
         GROUP BY Movie.title, Movie.year, Movie.movieId;";
+
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
 
@@ -26,13 +27,28 @@
         $year = $rowarr[2];
         $avgRating = $rowarr[3];
 
+        $sql = "SELECT Genre.genre FROM `Genre` WHERE Genre.genreId IN 
+        (SELECT MovieGenreLink.genreId FROM `MovieGenreLink` where MovieGenreLink.movieId = " . $movieId . ");";
+
+
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_all(MYSQLI_NUM);
+        
+
+
+        $genres = array();
+
+        foreach($rowarr as $g) {
+            array_push($genres, $g[0]);
+        }
+
         /////////////// 
         // Use case (4)
         ///////////////
 
         $sql = "SELECT COUNT(rating)
         FROM `Ratings`
-        WHERE Ratings.movieId = ". $rowarr[0] . ";";
+        WHERE Ratings.movieId = ". $movieId . ";";
         
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
@@ -232,7 +248,8 @@
         // $movieId
         // $title
         // $year
-        // %avgRating
+        // $genres
+        // $avgRating
         
         // $sumOfNormalReviews
         // $subsetNumOfNormalReviews
@@ -254,6 +271,12 @@
         echo 'Title: ' . $title;
         echo '<br>';
         echo 'Year: ' . $year;
+
+        echo '<br>';
+        echo "Genres: ";
+        echo implode(", ", $genres);
+        echo '<br>';
+
         echo '<br><br>';
         echo 'Rating: ' . $avgRating;
 
@@ -265,11 +288,11 @@
 
         echo '<br><br>';
 
-        echo "Average rating by random sample at 30%: " . $predictedRatingRandomSample;
+        echo "Average rating by random sample at 30%: " . round($predictedRatingRandomSample, 2);
 
         echo '<br>';
 
-        echo "Average rating by first 30% of reviews by timestamp: " . $predictedRatingTimestampSample;
+        echo "Average rating by first 30% of reviews by timestamp: " . round($predictedRatingTimestampSample, 2);
 
 
         echo '<br><br>';
@@ -308,15 +331,15 @@
 
 
         echo '<br><br>';
-        echo "A person with high Openess would rate this film: " . round($predictedRatingForHighOpenness, 2);
+        echo "A person with high <b>openess</b> would rate this film: " . round($predictedRatingForHighOpenness, 2);
         echo '<br>';
-        echo "A person with high Agreeableness would rate this film: " . round($predictedRatingForHighAgreeableness, 2);
+        echo "A person with high <b>agreeableness</b> would rate this film: " . round($predictedRatingForHighAgreeableness, 2);
         echo '<br>';
-        echo "A person with high Emotional Stability would rate this film: " . round($predictedRatingForHighEmotionalStability, 2);
+        echo "A person with high <b>emotional stability</b> would rate this film: " . round($predictedRatingForHighEmotionalStability, 2);
         echo '<br>';
-        echo "A person with high Conscientiousness would rate this film: " . round($predictedRatingForHighConscientiousness, 2);
+        echo "A person with high <b>conscientiousness</b> would rate this film: " . round($predictedRatingForHighConscientiousness, 2);
         echo '<br>';
-        echo "A person with high Extraversion would rate this film: " . round($predictedRatingForHighExtraversion, 2);
+        echo "A person with high <b>extraversion</b> would rate this film: " . round($predictedRatingForHighExtraversion, 2);
         echo '<br>';
         
 
