@@ -20,15 +20,14 @@
 
 </head>
 <body>
-</body>
-</html>
+
 
 <?php
 
-    include_once 'db_connection_init.php';
+include_once 'db_connection_init.php';
 
-    $search_string = "";
-    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+$search_string = "";
+$sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
                                     from Ratings 
                                     join Movie on Ratings.movieId = Movie.movieId
                                     WHERE Movie.title LIKE "%' . $search_string . '%"
@@ -37,14 +36,14 @@
 ?>
 
 
-<div class="container">
+<div class="container mt-2 mb-5">
     <div class="row">
 
 
-        <div class="col-md-8">
-            <div class="card mt-3 card shadow mt-3">
+        <div class="card shadow col-md-8 mt-3 mr-3" style="border-radius: 1.5em">
+            <div>
 
-            <?php
+                <?php
                 if (isset($_GET['search'])) {
 
                     $search_string = $_GET['search'];
@@ -60,11 +59,9 @@
                                 GROUP BY Movie.title, Movie.year, Movie.movieId';
 
                 }
-            ?>
+                ?>
 
-                <nav class="navbar navbar-light bg-light justify-content-between" style="background-color: #e3f2fd;">
-                    <a class="navbar-brand justify-content-center">UCL Movie Library</a>
-                </nav>
+                <h3 class="d-flex justify-content-center mt-4 mb-4">UCL Movie Library</h3>
 
 
                 <?php
@@ -126,12 +123,24 @@
                     $sql = $sql . " ORDER BY movieId";
                 }
 
-                $sql = $sql . " LIMIT 50";
 
+                $count = mysqli_query($con, $sql);
+                $total = mysqli_num_rows($count);
+
+                $limit = 15;
+
+                $page = 1;
+                if (isset($_GET['page'])) $page = $_GET['page'];
+
+                $pages = ceil($total / $limit);
+
+                $offset = ($page - 1) * $limit;
+                $sql = $sql . " LIMIT $limit OFFSET $offset";
+                $rows = mysqli_query($con, $sql);
                 ?>
 
 
-                <table class="table table-striped">
+                <table class="table">
                     <thead>
                     <tr>
                         <th>Name</th>
@@ -141,7 +150,6 @@
                     </thead>
                     <tbody>
                     <?php
-                    $rows = mysqli_query($con, $sql);
                     foreach ($rows as $row) {
                         ?>
                         <tr>
@@ -154,15 +162,44 @@
                     ?>
                     </tbody>
                 </table>
+
+                <?php
+
+                function updatePage($newPage)
+                {
+                    $url = "//{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+                    $query = parse_url($url, PHP_URL_QUERY);
+                    if ($query) {
+                        parse_str($query, $queryParams);
+                        $queryParams["page"] = $newPage;
+                        $url = str_replace("?$query", '?' . http_build_query($queryParams), $url);
+                    } else {
+                        $url .= '?' . urlencode("page") . '=' . urlencode($newPage);
+                    }
+                    return $url;
+                }
+
+
+                $start = $offset + 1;
+                $end = min(($offset + $limit), $total);
+                $prevlink = ($page > 1) ? '<a href="' . updatePage(1) . '" title="First page">&laquo;</a> <a href="' . updatePage($page - 1) . '" title="Previous page">&lsaquo;</a>' : '<span class="disabled">&laquo;</span> <span class="disabled">&lsaquo;</span>';
+                $nextlink = ($page < $pages) ? '<a href="' . updatePage($page + 1) . '" title="Next page">&rsaquo;</a> <a href="' . updatePage($pages) . '" title="Last page">&raquo;</a>' : '<span class="disabled">&rsaquo;</span> <span class="disabled">&raquo;</span>';
+                if ($total > 0)
+                    echo '<div class="d-flex justify-content-center">
+                        <p>', $prevlink, ' Page ', $page, ' of ', $pages, ', displaying ', $start, '-', $end, ' of ', $total, ' results ', $nextlink, ' </p>
+                        <a href="/personality_tags.php" class="ml-2">Personality Tags</a>
+                        </div>';
+                ?>
             </div>
         </div>
 
         <div class="col-md-3">
-            <form action="" method="GET">
-                <div class="card shadow mt-3">
-                    <div class="card-body">
+            <form method="GET">
+                <div class="card shadow mt-3" style="border-radius: 1.5em">
+                    <div class="card-body ">
                         <h5>Keyword</h5>
-                        <input class="form-control mr-1" value = "<?= $search_string ?>" type="search" name="search" placeholder="Search"
+                        <input class="form-control mr-1" value="<?= $search_string ?>" type="search" name="search"
+                               placeholder="Search"
                                aria-label="Search">
                         <br>
                         <h5>Sort</h5>
@@ -248,3 +285,5 @@
     </div>
 
 </div>
+</body>
+</html>
