@@ -19,6 +19,9 @@
         $highExtravTags = array();
 
         $sql = "SELECT movieId FROM `Movie`;";
+
+        //$sql = "SELECT movieId FROM `Movie` WHERE movieId > 1000;";
+
         $rows = mysqli_query($con, $sql);
         $rowarr2 = $rows->fetch_all(MYSQLI_NUM);
         
