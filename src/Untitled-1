@@ -5,3 +5,16 @@ Get their tags for the movie
 
 Get personality users who like the movies
 Associate tags with best personality match
+
+
+
+
+Get tags of movie,
+
+For each tag - give it an average rating
+
+Tag - positivity value 
+
+Get average tag positivity value
+
+Get personalities with closest movie rating (above 2.5) to tag positivity value

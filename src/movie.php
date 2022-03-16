@@ -34,8 +34,6 @@
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_all(MYSQLI_NUM);
         
-
-
         $genres = array();
 
         foreach($rowarr as $g) {
@@ -240,9 +238,42 @@
 
         $predictedRatingForHighExtraversion = $rowarr[0];
 
+        /////////////// 
+        // Use case (5)
+        ///////////////
 
 
-        /////////// UI 
+        // Get tags
+
+        $sql = "SELECT `tags`.`COL 3`, COUNT(`tags`.`COL 3`) FROM `tags` where `tags`.`COL 2` = " . $movieId . " GROUP BY `tags`.`COL 3`;";
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_all(MYSQLI_NUM);
+        
+        $tags = array();
+
+        foreach($rowarr as $t) {
+            array_push($tags, $t);
+        }
+
+        // Get average of corresponding user ratings of tags where rating is above 2.5
+
+        $sql = "SELECT avg(ar) FROM ( SELECT avg(rating) as AR, `tags`.`COL 3` FROM `Ratings` join `tags` ON Ratings.userId = `tags`.`COL 1` AND Ratings.movieId = `tags`.`COL 2` WHERE movieId = " . $movieId . " GROUP BY `tags`.`COL 3` HAVING avg(rating) > 2.5 ) as t1;";
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_array();
+
+        $avgTagRating = $rowarr[0];
+
+
+
+
+
+
+
+
+
+
+
+        /////////// UI ///////////
 
 
         // $movieId
@@ -262,6 +293,8 @@
 
         // $personalityScores[]
         // $predictedPersonalityScores[]
+
+        // $tags
 
 
 
@@ -340,7 +373,85 @@
         echo "A person with high <b>conscientiousness</b> would rate this film: " . round($predictedRatingForHighConscientiousness, 2);
         echo '<br>';
         echo "A person with high <b>extraversion</b> would rate this film: " . round($predictedRatingForHighExtraversion, 2);
-        echo '<br>';
+        echo '<br><br>';
+
+
+
+
+        echo "Tags: ";
+
+        foreach($tags as $key => $t) {
+            echo $t[0] . " [" . $t[1] . "]";
+            if (!($key === array_key_last($tags))) {
+                echo ", ";
+            }
+        }
+
+        echo "<br><br>";
+
+        echo "Based on this films tags, the personality types that would like this movie are: ";
+
+        $predictedRatingsPerPersonality = [];
+        $predictedRatingsPerPersonality[0] = $predictedRatingForHighOpenness;
+        $predictedRatingsPerPersonality[1] = $predictedRatingForHighAgreeableness;
+        $predictedRatingsPerPersonality[2] = $predictedRatingForHighEmotionalStability;
+        $predictedRatingsPerPersonality[3] = $predictedRatingForHighConscientiousness;
+        $predictedRatingsPerPersonality[4] = $predictedRatingForHighExtraversion;
+
+
+
+        if ($avgTagRating == NULL) {
+            echo "Not enough data for results";
+        } 
+        else {
+            $closest = 0;
+            $lowestDiff = 6;
+
+            $chosenPersonalities = array();
+            
+            for ($i=0; $i < 5; $i++) { 
+                $diff = abs($avgTagRating - $predictedRatingsPerPersonality[$i]);
+                if ($diff < $lowestDiff) {
+                    $lowestDiff = $diff;
+                    $closest = $i;
+                }
+            }
+
+            array_push($chosenPersonalities, $closest);
+
+            for ($i=0; $i < 5; $i++) { 
+                $diff = abs($predictedRatingsPerPersonality[$i] - $predictedRatingsPerPersonality[$closest]);
+                if ($diff < 0.05 and $i != $closest)  {
+                    array_push($chosenPersonalities, $i);
+                }
+            }
+
+            echo " ";
+
+            foreach ($chosenPersonalities as $key => $personality) {
+                if ($personality == 0) {
+                    echo "High Openness";
+                }
+                if ($personality == 1) {
+                    echo "High Agreeableness";
+                }
+                if ($personality == 2) {
+                    echo "High Emotional Stability";
+                }
+                if ($personality == 3) {
+                    echo "High Conscientiousness";
+                }
+                if ($personality == 4) {
+                    echo "High Extraversion";
+                }
+
+                if (!($key === array_key_last($chosenPersonalities))) {
+                    echo ", ";
+                }
+            }
+        }
+
+        
         
 
 
