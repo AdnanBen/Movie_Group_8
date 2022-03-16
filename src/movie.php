@@ -245,7 +245,7 @@
 
         // Get tags
 
-        $sql = "SELECT `tags`.`COL 3`, COUNT(`tags`.`COL 3`) FROM `tags` where `tags`.`COL 2` = " . $movieId . " GROUP BY `tags`.`COL 3`;";
+        $sql = "SELECT `Tags`.`tag`, COUNT(`Tags`.`tag`) FROM `Tags` where `Tags`.`movieId` = " . $movieId . " GROUP BY `Tags`.`tag`;";
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_all(MYSQLI_NUM);
         
@@ -257,7 +257,7 @@
 
         // Get average of corresponding user ratings of tags where rating is above 2.5
 
-        $sql = "SELECT avg(ar) FROM ( SELECT avg(rating) as AR, `tags`.`COL 3` FROM `Ratings` join `tags` ON Ratings.userId = `tags`.`COL 1` AND Ratings.movieId = `tags`.`COL 2` WHERE movieId = " . $movieId . " GROUP BY `tags`.`COL 3` HAVING avg(rating) > 2.5 ) as t1;";
+        $sql = "SELECT avg(ar) FROM ( SELECT avg(rating) as AR, `Tags`.`tag` FROM `Ratings` join `Tags` ON Ratings.userId = `Tags`.`userId` AND Ratings.movieId = `Tags`.`movieId` WHERE Tags.movieId = " . $movieId . " GROUP BY `Tags`.`tag` HAVING avg(rating) > 2.5 ) as t1;";
         $rows = mysqli_query($con, $sql);
         $rowarr = $rows->fetch_array();
 

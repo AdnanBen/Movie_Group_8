@@ -12,7 +12,14 @@
 
         include_once 'db_connection_init.php';
 
-        /* $highOpenessTags = array();
+        /* 
+        
+        ////////////////
+        Data Analysis 
+        ////////////////
+        
+        
+        $highOpenessTags = array();
         $highAgreeTags = array();
         $highEmotTags = array();
         $highConscienTags = array();
@@ -74,7 +81,7 @@
             $predictedRatingForHighEmotionalStability = $rowarr[0];
 
             // Conscientiousness
-
+§
 
             $sql = "SELECT AVG(rating) FROM `PersonalityRatings` WHERE movieId = " . $movieId . " AND userId IN 
             (SELECT Personality.userid FROM `Personality` where conscientiousness > 5.25);";
