@@ -185,7 +185,10 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                 $prevlink = ($page > 1) ? '<a href="' . updatePage(1) . '" title="First page">&laquo;</a> <a href="' . updatePage($page - 1) . '" title="Previous page">&lsaquo;</a>' : '<span class="disabled">&laquo;</span> <span class="disabled">&lsaquo;</span>';
                 $nextlink = ($page < $pages) ? '<a href="' . updatePage($page + 1) . '" title="Next page">&rsaquo;</a> <a href="' . updatePage($pages) . '" title="Last page">&raquo;</a>' : '<span class="disabled">&rsaquo;</span> <span class="disabled">&raquo;</span>';
                 if ($total > 0)
-                    echo '<div class="d-flex justify-content-center"><p>', $prevlink, ' Page ', $page, ' of ', $pages, ', displaying ', $start, '-', $end, ' of ', $total, ' results ', $nextlink, ' </p></div>';
+                    echo '<div class="d-flex justify-content-center">
+                        <p>', $prevlink, ' Page ', $page, ' of ', $pages, ', displaying ', $start, '-', $end, ' of ', $total, ' results ', $nextlink, ' </p>
+                        <a href="/personality_tags.php" class="ml-2">Personality Tags</a>
+                        </div>';
                 ?>
             </div>
         </div>
