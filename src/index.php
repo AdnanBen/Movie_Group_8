@@ -27,7 +27,8 @@
 include_once 'db_connection_init.php';
 
 $search_string = "";
-$sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+$sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR, STDDEV(Ratings.rating) as SD,
+                                    COUNT(Ratings.rating) as c
                                     from Ratings 
                                     join Movie on Ratings.movieId = Movie.movieId
                                     WHERE Movie.title LIKE "%' . $search_string . '%"
@@ -52,7 +53,8 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                     $search_string = str_replace("%", "\%", $search_string);
                     $search_string = str_replace("_", "\_", $search_string);
 
-                    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR 
+                    $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR, STDDEV(Ratings.rating) as SD,
+                            COUNT(Ratings.rating) as c
                                 from Ratings 
                                 join Movie on Ratings.movieId = Movie.movieId
                                 WHERE Movie.title LIKE "%' . $search_string . '%"
@@ -81,7 +83,10 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                     }
                     */
 
-                    $sql = "SELECT Movie.movieId, Movie.title, Movie.year, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR from Ratings 
+                    $sql = "SELECT Movie.movieId, Movie.title, Movie.year, avg(Ratings.rating) as AR, (((count(Ratings.rating) * avg(Ratings.rating))+(100*3.5))/(count(Ratings.rating)+100)) as BR, STDDEV(Ratings.rating) as SD,
+                    COUNT(Ratings.rating) as c
+
+                    from Ratings
                         join Movie on Ratings.movieId = Movie.movieId 
                         join MovieGenreLink on MovieGenreLink.movieId = Movie.movieId 
                         WHERE Movie.title LIKE '%" . $search_string . "%' AND MovieGenreLink.genreId in (" . implode(',', $selectedGenres) . ")
@@ -118,6 +123,12 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                     }
                     if ($selectedSort == "9") {
                         $sql = $sql . " ORDER BY `AR` DESC";
+                    }
+                    if ($selectedSort == "10") {
+                        $sql = "SELECT * FROM (" . $sql . ") AS t1 HAVING c > 10 ORDER BY `SD` ASC";
+                    }
+                    if ($selectedSort == "11") {
+                        $sql = "SELECT * FROM (" . $sql . ") AS t1 HAVING c > 10 ORDER BY `SD` DESC";
                     }
                 } else {
                     $sql = $sql . " ORDER BY movieId";
@@ -246,6 +257,14 @@ $sql = 'SELECT Movie.title, Movie.year, Movie.movieId, avg(Ratings.rating) as AR
                             <option value="9" <?php if (isset($selectedSort) and $selectedSort == "9") {
                                 echo '" selected = "selected"';
                             } ?>> Rating Descending
+                            </option>
+                            <option value="10" <?php if (isset($selectedSort) and $selectedSort == "10") {
+                                echo '" selected = "selected"';
+                            } ?>> Polarising Ascending
+                            </option>
+                            <option value="11" <?php if (isset($selectedSort) and $selectedSort == "11") {
+                                echo '" selected = "selected"';
+                            } ?>> Polarising Descending
                             </option>
                         </select>
                     </div>
