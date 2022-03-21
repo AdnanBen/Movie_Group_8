@@ -347,7 +347,7 @@ function getShowMoreUrl()
         $predictedRatingForHighExtraversion = $rowarr[0];
 
 ///////////////
-// Use case (5)
+// Use case (6)
 ///////////////
 
 
@@ -371,6 +371,27 @@ function getShowMoreUrl()
 
         $avgTagRating = $rowarr[0];
 
+// Predicted but with tags
+
+        $sql = "SELECT AVG(openness), AVG(agreeableness), AVG(emotional_stability), AVG(conscientiousness), AVG(extraversion)
+        FROM `Personality` 
+        WHERE userid IN
+        (
+        SELECT userId FROM `PersonalityRatings` WHERE movieId IN (SELECT movieId
+        FROM Tags WHERE tag IN (SELECT `Tags`.`tag` FROM `Tags` where `Tags`.`movieId` = " . $movieId ." GROUP BY `Tags`.`tag`)) AND rating > 4
+        );";
+
+        $rows = mysqli_query($con, $sql);
+        $rowarr = $rows->fetch_array();
+
+        $personalityScoresTags = [];
+
+        $personalityScoresTags[0] = $rowarr[0]; // Openness
+        $personalityScoresTags[1] = $rowarr[1]; // Agreeableness
+        $personalityScoresTags[2] = $rowarr[2]; // Emotional Stability
+        $personalityScoresTags[3] = $rowarr[3]; // Conscientiousness
+        $personalityScoresTags[4] = $rowarr[4]; // Extraversion
+
 
     }
 
@@ -378,7 +399,7 @@ function getShowMoreUrl()
         <!--PERSONALITY-->
         <div class="card row col-md-11 shadow mt-4 ml-2">
 
-            <h3 class="mb-3">Average personality ratings</h3>
+            <h3 class="mb-3">Average personality ratings (1-7)</h3>
             <div class="row d-flex justify-content-center mb-3">
                 <div class="card bg-light ml-2 mr-2" style="max-width: 30rem;">
                     <div class="card-body">
@@ -459,6 +480,8 @@ function getShowMoreUrl()
                     </div>
                 </div>
             </div>
+            <br>
+            
 
             <h3 class="mb-3 mt-5">Personality predictions</h3>
             <div class="row d-flex justify-content-center mb-4">
@@ -512,6 +535,41 @@ function getShowMoreUrl()
                 }
                 ?>
             </div>
+                
+            <h3 class="mb-3">Average personality ratings based on tags (1-7)</h3>
+            <div class="row d-flex justify-content-center mb-6">
+                <div class="card bg-light ml-1 mr-1" style="max-width: 12rem;">
+                    <div class="card-body">
+                        <h2><?= round($personalityScoresTags[0], 1) ?></h2>
+                        <p class="card-text" style="font-size: 0.8rem">Openness</p>
+                    </div>
+                </div>
+                <div class="card bg-light ml-1 mr-1" style="max-width: 12rem;">
+                    <div class="card-body">
+                        <h2><?= round($personalityScoresTags[1], 1) ?></h2>
+                        <p class="card-text" style="font-size: 0.8rem">Agreeableness</p>
+                    </div>
+                </div>
+                <div class="card bg-light ml-1 mr-1" style="max-width: 12rem;">
+                    <div class="card-body">
+                        <h2><?= round($personalityScoresTags[2], 1) ?></h2>
+                        <p class="card-text" style="font-size: 0.8rem">Emotional Stability</p>
+                    </div>
+                </div>
+                <div class="card bg-light ml-1 mr-1" style="max-width: 12rem;">
+                    <div class="card-body">
+                        <h2><?= round($personalityScoresTags[3], 1) ?></h2>
+                        <p class="card-text" style="font-size: 0.8rem">Conscientiousness</p>
+                    </div>
+                </div>
+                <div class="card bg-light ml-1 mr-1" style="max-width: 12rem;">
+                    <div class="card-body">
+                        <h2><?= round($personalityScoresTags[4], 1) ?></h2>
+                        <p class="card-text" style="font-size: 0.8rem">Extraversion</p>
+                    </div>
+                </div>
+            </div>
+            <br>
 
             <?php
 
@@ -570,7 +628,7 @@ function getShowMoreUrl()
                     }
 
                     if (!($key === array_key_last($chosenPersonalities))) {
-                        echo ", ";
+                        echo "";
                     }
                 }
             }
